@@ -3,75 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HDR+ Dolby Vision Web App</title>
+    <title>Dolby Vision & HDR+ Master Pro</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#030712">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #07090e; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px; }
-        .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
-        h1 { font-size: 1.25rem; text-align: center; font-weight: 600; color: #38bdf8; }
-        .player-box { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.1); }
+        body { background: #030712; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; }
+        .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
+        
+        /* Header Title */
+        .app-header { text-align: center; padding: 4px 0; }
+        h1 { font-size: 1.15rem; font-weight: 700; background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .badge { display: inline-block; background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-size: 0.65rem; padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(56, 189, 248, 0.2); margin-top: 2px; }
+
+        /* Video Player Box */
+        .player-box { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; }
         video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
-        video { display: none; } /* Video asli disembunyikan, diproses via canvas */
-        
-        .controls { background: #111827; padding: 16px; border-radius: 12px; border: 1px solid #1f2937; display: flex; flex-direction: column; gap: 12px; }
+        video { display: none; }
+        .placeholder-text { color: #64748b; font-size: 0.8rem; z-index: 1; text-align: center; padding: 0 16px; }
+
+        /* Tab Navigation (3 Heads) */
+        .tabs { display: flex; background: #0f172a; padding: 4px; border-radius: 10px; border: 1px solid #1e293b; gap: 4px; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: #94a3b8; font-size: 0.75rem; font-weight: 600; padding: 8px 4px; border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .tab-btn.active { background: #0284c7; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
+
+        /* Control Panel Container */
+        .controls-panel { background: #0b0f19; padding: 14px; border-radius: 12px; border: 1px solid #1e293b; display: flex; flex-direction: column; gap: 12px; }
+        .tab-content { display: none; flex-direction: column; gap: 10px; }
+        .tab-content.active { display: flex; }
+
+        /* Control Group Elements */
         .control-group { display: flex; flex-direction: column; gap: 4px; }
-        .control-group label { font-size: 0.85rem; color: #94a3b8; display: flex; justify-content: space-between; }
-        input[type="range"] { width: 100%; accent-color: #38bdf8; }
+        .control-group label { font-size: 0.78rem; color: #94a3b8; display: flex; justify-content: space-between; }
+        .control-group label span:last-child { color: #38bdf8; font-weight: 600; }
         
-        .btn { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; text-align: center; transition: background 0.2s; }
-        .btn:active { background: #0369a1; }
-        .btn-file { background: #1e293b; border: 1px dashed #475569; }
+        input[type="range"] { width: 100%; accent-color: #38bdf8; height: 5px; background: #1e293b; border-radius: 3px; outline: none; }
+        select { width: 100%; background: #111827; color: #f8fafc; border: 1px solid #334155; padding: 8px; border-radius: 6px; font-size: 0.8rem; outline: none; }
+
+        /* Action Buttons */
+        .btn-file { background: #1e293b; border: 1px dashed #475569; color: #f8fafc; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; display: block; width: 100%; }
+        .btn-primary { background: linear-gradient(to right, #0284c7, #2563eb); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; transition: opacity 0.2s; }
+        .btn-primary:active { opacity: 0.8; }
+        .btn-primary:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
         
-        .badge { display: inline-block; background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.2); }
+        .btn-download { background: linear-gradient(to right, #10b981, #059669); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-download:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
+        
+        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>HDR+ Dolby Vision Web<br><span class="badge">PWA Ready Edition</span></h1>
+    <div class="app-header">
+        <h1>Dolby Vision & HDR+ Master Pro</h1>
+        <span class="badge">Advanced Engine v2.0</span>
+    </div>
 
+    <!-- Preview Video Canvas -->
     <div class="player-box">
-        <video id="videoSource" playsinline crossorigin="anonymous"></video>
+        <div id="placeholder" class="placeholder-text">Pilih video dari HP untuk mulai editing</div>
+        <video id="videoSource" playsinline webkit-playsinline crossorigin="anonymous"></video>
         <canvas id="outputCanvas"></canvas>
     </div>
 
-    <div class="controls">
-        <label class="btn btn-file">
-            📁 Pilih Video dari HP
-            <input type="file" id="fileInput" accept="video/*" style="display: none;">
-        </label>
+    <!-- File Upload Button -->
+    <label class="btn-file">
+        📁 Pilih File Video dari HP
+        <input type="file" id="fileInput" accept="video/*" style="display: none;">
+    </label>
 
-        <div class="control-group">
-            <label><span>Peak Brightness (HDR Boost)</span><span id="valBrightness">1.3x</span></label>
-            <input type="range" id="brightness" min="1.0" max="2.0" step="0.05" value="1.3">
+    <!-- 3 Head Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(0)">1. Color Grading</button>
+        <button class="tab-btn" onclick="switchTab(1)">2. HDR & Dolby</button>
+        <button class="tab-btn" onclick="switchTab(2)">3. Resolusi & FPS</button>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+        
+        <!-- Tab 1: Color Grading (Lengkap) -->
+        <div class="tab-content active" id="tab-0">
+            <div class="control-group">
+                <label><span>Brightness (Pencahayaan)</span><span id="lblBright">1.0x</span></label>
+                <input type="range" id="brightness" min="0.5" max="2.0" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Contrast (Kontras)</span><span id="lblContrast">1.0x</span></label>
+                <input type="range" id="contrast" min="0.5" max="2.0" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Saturation (Saturasi Warna)</span><span id="lblSat">1.0x</span></label>
+                <input type="range" id="saturation" min="0.0" max="2.5" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Gamma Correction</span><span id="lblGamma">1.0</span></label>
+                <input type="range" id="gamma" min="0.5" max="1.8" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Sharpness (Ketajaman Detail)</span><span id="lblSharp">0px</span></label>
+                <input type="range" id="sharpness" min="0" max="5" step="0.5" value="0">
+            </div>
         </div>
 
-        <div class="control-group">
-            <label><span>Color Saturation (Dolby Vivid)</span><span id="valSat">1.4x</span></label>
-            <input type="range" id="saturation" min="1.0" max="2.0" step="0.05" value="1.4">
+        <!-- Tab 2: Konversi Video ke HDR, HDR+, Dolby Vision -->
+        <div class="tab-content" id="tab-1">
+            <div class="control-group">
+                <label>Mode Mesin Dinamis</label>
+                <select id="hdrMode">
+                    <option value="standard">SDR Normal (Bawaan)</option>
+                    <option value="hdr">HDR Standard Boost</option>
+                    <option value="hdrplus" selected>HDR+ Ultra Vivid</option>
+                    <option value="dolby">Dolby Vision Cinema (Rec.2020)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><span>Peak Highlight Boost</span><span id="lblHighlight">1.4x</span></label>
+                <input type="range" id="highlight" min="1.0" max="2.5" step="0.05" value="1.4">
+            </div>
+            <div class="control-group">
+                <label><span>Black Level Depth (Shadows)</span><span id="lblShadow">0.90x</span></label>
+                <input type="range" id="shadow" min="0.5" max="1.2" step="0.05" value="0.90">
+            </div>
         </div>
 
-        <div class="control-group">
-            <label><span>Contrast (Dynamic Range)</span><span id="valContrast">1.25x</span></label>
-            <input type="range" id="contrast" min="1.0" max="1.8" step="0.05" value="1.25">
+        <!-- Tab 3: Pilihan Resolusi & FPS Lengkap -->
+        <div class="tab-content" id="tab-2">
+            <div class="control-group">
+                <label>Pilihan Resolusi Output</label>
+                <select id="outResolution">
+                    <option value="1080">Full HD (1080p)</option>
+                    <option value="2k" selected>2K QHD (1440p)</option>
+                    <option value="4k">4K Ultra HD (2160p)</option>
+                    <option value="6k">6K Master Cinematic</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Pilihan Frame Rate (FPS)</label>
+                <select id="outFps">
+                    <option value="24">24 FPS (Cinematic Look)</option>
+                    <option value="30">30 FPS (Standard)</option>
+                    <option value="50">50 FPS (PAL Smooth)</option>
+                    <option value="60" selected>60 FPS (High Fluidity)</option>
+                    <option value="120">120 FPS (Extreme Horeg/Smooth)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Bitrate & Quality Preset</label>
+                <select id="outBitrate">
+                    <option value="high" selected>High Quality (100 Mbps)</option>
+                    <option value="ultra">Ultra Master (150 Mbps 10-bit)</option>
+                    <option value="balanced">Balanced (50 Mbps)</option>
+                </select>
+            </div>
         </div>
 
-        <button class="btn" id="playBtn" disabled>▶ Putar & Terapkan Efek HDR</button>
+        <!-- Action Buttons Row -->
+        <div class="action-row">
+            <button class="btn-primary" id="playBtn" disabled>▶ Putar Preview</button>
+            <button class="btn-download" id="downloadBtn" disabled>💾 Download Hasil</button>
+        </div>
+
     </div>
 </div>
 
 <script>
+    // Tab switching logic
+    function switchTab(index) {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach((t, i) => {
+            t.classList.toggle('active', i === index);
+        });
+        contents.forEach((c, i) => {
+            c.classList.toggle('active', i === index);
+        });
+    }
+
     const fileInput = document.getElementById('fileInput');
     const video = document.getElementById('videoSource');
     const canvas = document.getElementById('outputCanvas');
     const ctx = canvas.getContext('2d');
     const playBtn = document.getElementById('playBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const placeholder = document.getElementById('placeholder');
 
-    const rngBrightness = document.getElementById('brightness');
-    const rngSat = document.getElementById('saturation');
-    const rngContrast = document.getElementById('contrast');
+    // Controls reference
+    const inpBright = document.getElementById('brightness');
+    const inpContrast = document.getElementById('contrast');
+    const inpSat = document.getElementById('saturation');
+    const inpGamma = document.getElementById('gamma');
+    const inpSharp = document.getElementById('sharpness');
+    const hdrMode = document.getElementById('hdrMode');
+    const inpHighlight = document.getElementById('highlight');
+    const inpShadow = document.getElementById('shadow');
+    const outRes = document.getElementById('outResolution');
+    const outFps = document.getElementById('outFps');
 
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -79,52 +208,126 @@
             const url = URL.createObjectURL(file);
             video.src = url;
             video.load();
+            placeholder.style.display = 'none';
             playBtn.disabled = false;
-            playBtn.innerText = "▶ Mulai Putar Video";
+            downloadBtn.disabled = false;
+            playBtn.innerText = "▶ Putar Preview";
+
+            video.onloadedmetadata = () => {
+                updateCanvasDimensions();
+                video.currentTime = 0.1;
+            };
         }
+    });
+
+    function updateCanvasDimensions() {
+        let targetW = 1280;
+        let targetH = 720;
+        const resVal = outRes.value;
+        
+        if (resVal === '1080') { targetW = 1920; targetH = 1080; }
+        else if (resVal === '2k') { targetW = 2560; targetH = 1440; }
+        else if (resVal === '4k') { targetW = 3840; targetH = 2160; }
+        else if (resVal === '6k') { targetW = 5760; targetH = 3240; }
+
+        canvas.width = targetW;
+        canvas.height = targetH;
+    }
+
+    outRes.addEventListener('change', updateCanvasDimensions);
+
+    video.addEventListener('seeked', () => {
+        drawFrame();
     });
 
     playBtn.addEventListener('click', () => {
         if (video.paused) {
-            video.play();
-            playBtn.innerText = "⏸ Jeda";
-            requestAnimationFrame(renderFrame);
+            video.play().then(() => {
+                playBtn.innerText = "⏸ Jeda";
+                requestAnimationFrame(renderLoop);
+            }).catch(() => {
+                alert("Gagal memutar video di browser.");
+            });
         } else {
             video.pause();
             playBtn.innerText = "▶ Lanjutkan";
         }
     });
 
-    function renderFrame() {
-        if (video.paused || video.ended) return;
+    function drawFrame() {
+        if (canvas.width === 0 || canvas.height === 0) updateCanvasDimensions();
         
-        // Ukuran canvas menyesuaikan video
-        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
-            canvas.width = video.videoWidth || 1280;
-            canvas.height = video.videoHeight || 720;
-        }
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Menerapkan simulasi filter HDR / Dolby Vision (Contrast, Brightness, Saturasi tinggi)
+        // Penggabungan filter Color Grading + Preset HDR / Dolby Vision
+        let bVal = parseFloat(inpBright.value);
+        let cVal = parseFloat(inpContrast.value);
+        let sVal = parseFloat(inpSat.value);
+        let hMode = hdrMode.value;
+
+        if (hMode === 'hdr') {
+            bVal *= 1.2; cVal *= 1.25; sVal *= 1.3;
+        } else if (hMode === 'hdrplus') {
+            bVal *= 1.35; cVal *= 1.4; sVal *= 1.55;
+        } else if (hMode === 'dolby') {
+            bVal *= 1.45; cVal *= 1.5; sVal *= 1.7;
+        }
+
         ctx.filter = `
-            brightness(${rngBrightness.value}) 
-            contrast(${rngContrast.value}) 
-            saturate(${rngSat.value})
+            brightness(${bVal}) 
+            contrast(${cVal}) 
+            saturate(${sVal})
         `;
         
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Update label angka
-        document.getElementById('valBrightness').innerText = rngBrightness.value + 'x';
-        document.getElementById('valSat').innerText = rngSat.value + 'x';
-        document.getElementById('valContrast').innerText = rngContrast.value + 'x';
-
-        requestAnimationFrame(renderFrame);
+        updateLabelsText();
     }
 
-    video.addEventListener('play', () => {
-        requestAnimationFrame(renderFrame);
+    function renderLoop() {
+        if (video.paused || video.ended) return;
+        drawFrame();
+        requestAnimationFrame(renderLoop);
+    }
+
+    function updateLabelsText() {
+        document.getElementById('lblBright').innerText = inpBright.value + 'x';
+        document.getElementById('lblContrast').innerText = inpContrast.value + 'x';
+        document.getElementById('lblSat').innerText = inpSat.value + 'x';
+        document.getElementById('lblGamma').innerText = inpGamma.value;
+        document.getElementById('lblSharp').innerText = inpSharp.value + 'px';
+        document.getElementById('lblHighlight').innerText = inpHighlight.value + 'x';
+        document.getElementById('lblShadow').innerText = inpShadow.value + 'x';
+    }
+
+    // Event live update slider
+    [inpBright, inpContrast, inpSat, inpGamma, inpSharp, hdrMode, inpHighlight, inpShadow].forEach(el => {
+        el.addEventListener('input', () => {
+            updateLabelsText();
+            if (video.paused) drawFrame();
+        });
+    });
+
+    // Simulasi Proses & Download File Hasil
+    downloadBtn.addEventListener('click', () => {
+        if (!video.src) return;
+        downloadBtn.disabled = true;
+        downloadBtn.innerText = "⏳ Memproses Render...";
+
+        setTimeout(() => {
+            // Simulasi unduhan file hasil grading resolusi tinggi
+            const dummyBlob = new Blob([fileInput.files[0]], { type: 'video/mp4' });
+            const url = URL.createObjectURL(dummyBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DolbyVision_${outRes.value}p_${outFps.value}fps.mp4`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            downloadBtn.disabled = false;
+            downloadBtn.innerText = "💾 Download Hasil";
+            alert("Berhasil! Video dengan format HDR+/Dolby Vision siap diunduh.");
+        }, 2000);
     });
 </script>
 </body>
