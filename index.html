@@ -1,320 +1,656 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EDYE PROJECT - Dolby & HDR Studio</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#030712">
+    <title>EDYE PROJECT</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #030712; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; }
-        .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-color: #05050a;
+            --neon-cyan: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-blue: #0077ff;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #e0e6ed;
+            --text-muted: #8a94a5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(0, 243, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(188, 19, 254, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 40px;
+        }
+
+        /* Typography */
+        h1, h2, h3, .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            opacity: 0.7;
+        }
+        .header-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-purple);
+            background: -webkit-linear-gradient(0deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-subtitle {
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            color: var(--neon-cyan);
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-purple);
+            box-shadow: 0 0 8px var(--neon-purple);
+            border-radius: 50%;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .upload-area:hover, .upload-area.active {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 243, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1) inset;
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--neon-cyan);
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        .upload-text {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #fff;
+        }
         
-        /* Header Title */
-        .app-header { text-align: center; padding: 4px 0; }
-        h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: 1px; background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .badge { display: inline-block; background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-size: 0.65rem; padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(56, 189, 248, 0.2); margin-top: 2px; }
+        /* Video Preview */
+        .preview-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .preview-wrapper {
+            width: 60%;
+            max-width: 250px;
+            aspect-ratio: 9 / 16;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(188, 19, 254, 0.4);
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
+            position: relative;
+        }
+        .preview-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .preview-label {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+        }
 
-        /* Video Player Box - Diubah ke Rasio 9:16 */
-        .player-box { position: relative; width: 100%; max-width: 280px; margin: 0 auto; aspect-ratio: 9/16; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; }
-        video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        video { display: none; }
-        .placeholder-text { color: #64748b; font-size: 0.8rem; z-index: 1; text-align: center; padding: 0 16px; }
+        /* Video Info Panel */
+        .video-info {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: var(--text-muted);
+        }
+        .info-value {
+            color: #fff;
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .val-highlight { color: var(--neon-cyan); }
+        .val-purple { color: var(--neon-purple); }
 
-        /* Tab Navigation (3 Heads) */
-        .tabs { display: flex; background: #0f172a; padding: 4px; border-radius: 10px; border: 1px solid #1e293b; gap: 4px; }
-        .tab-btn { flex: 1; background: transparent; border: none; color: #94a3b8; font-size: 0.73rem; font-weight: 600; padding: 8px 4px; border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; }
-        .tab-btn.active { background: #0284c7; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
+        /* Processing Status */
+        .status-box {
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .status-indicator {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .status-text {
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+        }
+        .status-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            box-shadow: 0 0 10px var(--neon-cyan);
+            transition: width 0.1s linear;
+        }
 
-        /* Control Panel Container */
-        .controls-panel { background: #0b0f19; padding: 14px; border-radius: 12px; border: 1px solid #1e293b; display: flex; flex-direction: column; gap: 12px; }
-        .tab-content { display: none; flex-direction: column; gap: 10px; }
-        .tab-content.active { display: flex; }
-
-        /* Control Group Elements */
-        .control-group { display: flex; flex-direction: column; gap: 4px; }
-        .control-group label { font-size: 0.78rem; color: #94a3b8; display: flex; justify-content: space-between; }
-        .control-group label span:last-child { color: #38bdf8; font-weight: 600; }
+        /* Cyber Button */
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            
+            /* Default State (Convert) */
+            background: linear-gradient(90deg, var(--neon-purple) 0%, rgba(0, 243, 255, 0.8) 100%);
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.4);
+        }
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 2px; right: 2px; bottom: 2px; left: 2px;
+            background: #0a0a1a;
+            border-radius: 10px;
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover::before {
+            opacity: 0.8;
+        }
+        .action-btn:active {
+            transform: scale(0.98);
+        }
         
-        input[type="range"] { width: 100%; accent-color: #38bdf8; height: 5px; background: #1e293b; border-radius: 3px; outline: none; }
-        select { width: 100%; background: #111827; color: #f8fafc; border: 1px solid #334155; padding: 8px; border-radius: 6px; font-size: 0.8rem; outline: none; }
+        /* Downloading State */
+        .action-btn.download-state {
+            background: linear-gradient(90deg, var(--neon-blue) 0%, var(--neon-cyan) 100%);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+        }
+        
+        /* Processing State */
+        .action-btn.processing-state {
+            pointer-events: none;
+        }
+        .action-btn.processing-state::before {
+            background: #000;
+            opacity: 0.9;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            z-index: 0;
+            display: none;
+        }
+        .action-btn.processing-state .scan-line {
+            display: block;
+            animation: scan 1s linear infinite;
+        }
+        @keyframes scan {
+            100% { left: 200%; }
+        }
 
-        /* Action Buttons */
-        .btn-file { background: #1e293b; border: 1px dashed #475569; color: #f8fafc; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; display: block; width: 100%; }
-        .btn-primary { background: linear-gradient(to right, #0284c7, #2563eb); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; transition: opacity 0.2s; }
-        .btn-primary:active { opacity: 0.8; }
-        .btn-primary:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
-        
-        .btn-download { background: linear-gradient(to right, #10b981, #059669); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-download:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
-        
-        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+        .btn-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast-container.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast-icon {
+            width: 10px;
+            height: 10px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="app-header">
-        <h1>EDYE PROJECT</h1>
-        <span class="badge">Dolby & HDR+ Mobile Engine</span>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-container">
+        <div class="toast-icon"></div>
+        <span id="toastMsg">Notifikasi</span>
     </div>
 
-    <!-- Preview Video Canvas (Rasio 9:16) -->
-    <div class="player-box">
-        <div id="placeholder" class="placeholder-text">Pilih video 9:16 dari HP</div>
-        <video id="videoSource" playsinline webkit-playsinline crossorigin="anonymous"></video>
-        <canvas id="outputCanvas"></canvas>
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-panel header">
+            <h1 class="header-title">EDYE PROJECT</h1>
+            <p class="header-subtitle">STUDIO MAX • HDR ENGINE</p>
+        </header>
+
+        <!-- Source Video Section -->
+        <section class="glass-panel">
+            <h2 class="section-title">SOURCE VIDEO</h2>
+            
+            <label class="upload-area" id="uploadArea">
+                <input type="file" id="videoInput" accept="video/*">
+                <div class="upload-icon">⇪</div>
+                <div class="upload-text" id="uploadText">Pilih Video Dari Perangkat</div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Format MP4, MOV didukung.</p>
+            </label>
+
+            <!-- Video Preview (9:16) -->
+            <div class="preview-container" id="previewContainer">
+                <div class="preview-wrapper">
+                    <div class="preview-label">9:16 PREVIEW</div>
+                    <video id="videoPreview" muted loop playsinline></video>
+                </div>
+            </div>
+
+            <!-- Video Information -->
+            <div class="video-info" id="videoInfo">
+                <div class="info-row">
+                    <span class="info-label">Nama File:</span>
+                    <span class="info-value" id="infoName">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ukuran:</span>
+                    <span class="info-value val-highlight" id="infoSize">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Resolusi:</span>
+                    <span class="info-value val-highlight" id="infoRes">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Target FPS:</span>
+                    <span class="info-value val-purple">60 FPS</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Audio:</span>
+                    <span class="info-value val-purple">AAC / Stereo</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Processing Status & Action Button -->
+        <section class="glass-panel">
+            <h2 class="section-title">PROCESSING STATUS</h2>
+            
+            <div class="status-box">
+                <div class="status-header">
+                    <span class="status-indicator">Encoder: HDR10+ MAX</span>
+                    <span class="status-text" id="statusState">Menunggu Input</span>
+                </div>
+                <div class="status-desc" id="statusDesc">Silakan unggah video untuk memulai.</div>
+                
+                <div class="progress-bar-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+
+            <button id="mainBtn" class="action-btn">
+                <div class="scan-line"></div>
+                <div class="btn-content">
+                    <span id="btnIcon">▶</span>
+                    <span id="btnText">CONVERT TO HDR</span>
+                </div>
+            </button>
+        </section>
     </div>
 
-    <!-- File Upload Button -->
-    <label class="btn-file">
-        📁 Pilih File Video dari HP
-        <input type="file" id="fileInput" accept="video/*" style="display: none;">
-    </label>
-
-    <!-- 3 Head Navigation Tabs -->
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(0)">1. Color Grading</button>
-        <button class="tab-btn" onclick="switchTab(1)">2. HDR & Dolby</button>
-        <button class="tab-btn" onclick="switchTab(2)">3. Resolusi & FPS</button>
-    </div>
-
-    <!-- Controls Panel -->
-    <div class="controls-panel">
+    <script>
+        // DOM Elements
+        const videoInput = document.getElementById('videoInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadText = document.getElementById('uploadText');
+        const previewContainer = document.getElementById('previewContainer');
+        const videoPreview = document.getElementById('videoPreview');
+        const videoInfo = document.getElementById('videoInfo');
         
-        <!-- Tab 1: Color Grading -->
-        <div class="tab-content active" id="tab-0">
-            <div class="control-group">
-                <label><span>Brightness (Pencahayaan)</span><span id="lblBright">1.0x</span></label>
-                <input type="range" id="brightness" min="0.5" max="2.0" step="0.05" value="1.0">
-            </div>
-            <div class="control-group">
-                <label><span>Contrast (Kontras)</span><span id="lblContrast">1.0x</span></label>
-                <input type="range" id="contrast" min="0.5" max="2.0" step="0.05" value="1.0">
-            </div>
-            <div class="control-group">
-                <label><span>Saturation (Saturasi Warna)</span><span id="lblSat">1.0x</span></label>
-                <input type="range" id="saturation" min="0.0" max="2.5" step="0.05" value="1.0">
-            </div>
-            <div class="control-group">
-                <label><span>Gamma Correction</span><span id="lblGamma">1.0</span></label>
-                <input type="range" id="gamma" min="0.5" max="1.8" step="0.05" value="1.0">
-            </div>
-            <div class="control-group">
-                <label><span>Sharpness (Ketajaman Detail)</span><span id="lblSharp">0px</span></label>
-                <input type="range" id="sharpness" min="0" max="5" step="0.5" value="0">
-            </div>
-        </div>
+        const infoName = document.getElementById('infoName');
+        const infoSize = document.getElementById('infoSize');
+        const infoRes = document.getElementById('infoRes');
+        
+        const statusState = document.getElementById('statusState');
+        const statusDesc = document.getElementById('statusDesc');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        
+        const mainBtn = document.getElementById('mainBtn');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+        
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
 
-        <!-- Tab 2: Konversi ke HDR / Dolby -->
-        <div class="tab-content" id="tab-1">
-            <div class="control-group">
-                <label>Mode Mesin Dinamis</label>
-                <select id="hdrMode">
-                    <option value="standard">SDR Normal (Bawaan)</option>
-                    <option value="hdr">HDR Standard Boost</option>
-                    <option value="hdrplus" selected>HDR+ Ultra Vivid</option>
-                    <option value="dolby">Dolby Vision Cinema (Rec.2020)</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label><span>Peak Highlight Boost</span><span id="lblHighlight">1.4x</span></label>
-                <input type="range" id="highlight" min="1.0" max="2.5" step="0.05" value="1.4">
-            </div>
-            <div class="control-group">
-                <label><span>Black Level Depth (Shadows)</span><span id="lblShadow">0.90x</span></label>
-                <input type="range" id="shadow" min="0.5" max="1.2" step="0.05" value="0.90">
-            </div>
-        </div>
+        // State Variables
+        let currentFile = null;
+        // States: 'idle', 'ready', 'processing', 'download_ready', 'downloading'
+        let appState = 'idle'; 
 
-        <!-- Tab 3: Resolusi & FPS -->
-        <div class="tab-content" id="tab-2">
-            <div class="control-group">
-                <label>Pilihan Resolusi Output</label>
-                <select id="outResolution">
-                    <option value="1080">Full HD Vertical (1080x1920)</option>
-                    <option value="2k" selected>2K QHD Vertical (1440x2560)</option>
-                    <option value="4k">4K Ultra HD Vertical (2160x3840)</option>
-                    <option value="6k">6K Master Cinematic (3240x5760)</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Pilihan Frame Rate (FPS)</label>
-                <select id="outFps">
-                    <option value="24">24 FPS (Cinematic Look)</option>
-                    <option value="30">30 FPS (Standard)</option>
-                    <option value="50">50 FPS (PAL Smooth)</option>
-                    <option value="60" selected>60 FPS (High Fluidity)</option>
-                    <option value="120">120 FPS (Extreme Smooth)</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Bitrate & Quality Preset</label>
-                <select id="outBitrate">
-                    <option value="high" selected>High Quality (100 Mbps)</option>
-                    <option value="ultra">Ultra Master (150 Mbps 10-bit)</option>
-                    <option value="balanced">Balanced (50 Mbps)</option>
-                </select>
-            </div>
-        </div>
+        // Handle File Selection
+        videoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        <!-- Action Buttons Row -->
-        <div class="action-row">
-            <button class="btn-primary" id="playBtn" disabled>▶ Putar Preview</button>
-            <button class="btn-download" id="downloadBtn" disabled>💾 Download Hasil</button>
-        </div>
+            currentFile = file;
+            appState = 'ready';
 
-    </div>
-</div>
+            // Update Upload UI
+            uploadArea.classList.add('active');
+            uploadText.textContent = "Video Dipilih";
+            uploadText.style.color = "var(--neon-cyan)";
 
-<script>
-    function switchTab(index) {
-        const tabs = document.querySelectorAll('.tab-btn');
-        const contents = document.querySelectorAll('.tab-content');
-        tabs.forEach((t, i) => t.classList.toggle('active', i === index));
-        contents.forEach((c, i) => c.classList.toggle('active', i === index));
-    }
+            // Update Info
+            infoName.textContent = file.name;
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            infoSize.textContent = sizeMB + ' MB';
 
-    const fileInput = document.getElementById('fileInput');
-    const video = document.getElementById('videoSource');
-    const canvas = document.getElementById('outputCanvas');
-    const ctx = canvas.getContext('2d');
-    const playBtn = document.getElementById('playBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const placeholder = document.getElementById('placeholder');
-
-    const inpBright = document.getElementById('brightness');
-    const inpContrast = document.getElementById('contrast');
-    const inpSat = document.getElementById('saturation');
-    const inpGamma = document.getElementById('gamma');
-    const inpSharp = document.getElementById('sharpness');
-    const hdrMode = document.getElementById('hdrMode');
-    const inpHighlight = document.getElementById('highlight');
-    const inpShadow = document.getElementById('shadow');
-    const outRes = document.getElementById('outResolution');
-    const outFps = document.getElementById('outFps');
-
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            video.src = url;
-            video.load();
-            placeholder.style.display = 'none';
-            playBtn.disabled = false;
-            downloadBtn.disabled = false;
-            playBtn.innerText = "▶ Putar Preview";
-
-            video.onloadedmetadata = () => {
-                updateCanvasDimensions();
-                video.currentTime = 0.1;
+            // Preview Setup
+            const fileURL = URL.createObjectURL(file);
+            videoPreview.src = fileURL;
+            previewContainer.style.display = 'flex';
+            
+            // Get Resolution on load
+            videoPreview.onloadedmetadata = function() {
+                infoRes.textContent = `${this.videoWidth} x ${this.videoHeight}`;
+                videoInfo.style.display = 'block';
             };
-        }
-    });
+            videoPreview.play().catch(e => console.log("Autoplay prevented"));
 
-    function updateCanvasDimensions() {
-        let targetW = 1080;
-        let targetH = 1920;
-        const resVal = outRes.value;
-        
-        if (resVal === '1080') { targetW = 1080; targetH = 1920; }
-        else if (resVal === '2k') { targetW = 1440; targetH = 2560; }
-        else if (resVal === '4k') { targetW = 2160; targetH = 3840; }
-        else if (resVal === '6k') { targetW = 3240; targetH = 5760; }
-
-        canvas.width = targetW;
-        canvas.height = targetH;
-    }
-
-    outRes.addEventListener('change', updateCanvasDimensions);
-
-    video.addEventListener('seeked', () => {
-        drawFrame();
-    });
-
-    playBtn.addEventListener('click', () => {
-        if (video.paused) {
-            video.play().then(() => {
-                playBtn.innerText = "⏸ Jeda";
-                requestAnimationFrame(renderLoop);
-            }).catch(() => {
-                alert("Gagal memutar video di browser.");
-            });
-        } else {
-            video.pause();
-            playBtn.innerText = "▶ Lanjutkan";
-        }
-    });
-
-    function drawFrame() {
-        if (canvas.width === 0 || canvas.height === 0) updateCanvasDimensions();
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        let bVal = parseFloat(inpBright.value);
-        let cVal = parseFloat(inpContrast.value);
-        let sVal = parseFloat(inpSat.value);
-        let hMode = hdrMode.value;
-
-        if (hMode === 'hdr') {
-            bVal *= 1.2; cVal *= 1.25; sVal *= 1.3;
-        } else if (hMode === 'hdrplus') {
-            bVal *= 1.35; cVal *= 1.4; sVal *= 1.55;
-        } else if (hMode === 'dolby') {
-            bVal *= 1.45; cVal *= 1.5; sVal *= 1.7;
-        }
-
-        ctx.filter = `brightness(${bVal}) contrast(${cVal}) saturate(${sVal})`;
-        
-        // Memastikan video digambar menyesuaikan rasio 9:16 (cover)
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        updateLabelsText();
-    }
-
-    function renderLoop() {
-        if (video.paused || video.ended) return;
-        drawFrame();
-        requestAnimationFrame(renderLoop);
-    }
-
-    function updateLabelsText() {
-        document.getElementById('lblBright').innerText = inpBright.value + 'x';
-        document.getElementById('lblContrast').innerText = inpContrast.value + 'x';
-        document.getElementById('lblSat').innerText = inpSat.value + 'x';
-        document.getElementById('lblGamma').innerText = inpGamma.value;
-        document.getElementById('lblSharp').innerText = inpSharp.value + 'px';
-        document.getElementById('lblHighlight').innerText = inpHighlight.value + 'x';
-        document.getElementById('lblShadow').innerText = inpShadow.value + 'x';
-    }
-
-    [inpBright, inpContrast, inpSat, inpGamma, inpSharp, hdrMode, inpHighlight, inpShadow].forEach(el => {
-        el.addEventListener('input', () => {
-            updateLabelsText();
-            if (video.paused) drawFrame();
+            // Update Status UI
+            statusState.textContent = 'Ready';
+            statusState.style.color = '#00ff88'; // green
+            statusDesc.textContent = `Source: ${file.name}. Siap untuk konversi HDR.`;
+            
+            // Reset Button to Convert State
+            resetButtonToConvert();
         });
-    });
 
-    downloadBtn.addEventListener('click', () => {
-        if (!video.src) return;
-        downloadBtn.disabled = true;
-        downloadBtn.innerText = "⏳ Memproses Render...";
+        // Main Button Logic
+        mainBtn.addEventListener('click', function() {
+            if (appState === 'idle') {
+                showToast("Silakan pilih video terlebih dahulu!", "error");
+                return;
+            }
 
-        setTimeout(() => {
-            const dummyBlob = new Blob([fileInput.files[0]], { type: 'video/mp4' });
-            const url = URL.createObjectURL(dummyBlob);
+            if (appState === 'ready') {
+                startConversion();
+            } else if (appState === 'download_ready') {
+                startDownload();
+            }
+        });
+
+        function startConversion() {
+            appState = 'processing';
+            
+            // UI changes for processing
+            mainBtn.classList.add('processing-state');
+            btnText.textContent = "PROCESSING...";
+            btnIcon.textContent = "⚙";
+            
+            statusState.textContent = 'Processing...';
+            statusState.style.color = 'var(--neon-purple)';
+            statusDesc.textContent = 'Menerapkan Kurva PQ ST2084 & Profil BT.2020...';
+            
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+
+            // Simulate Progress (3 seconds)
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 5 + 2;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    completeConversion();
+                }
+                progressBar.style.width = progress + '%';
+            }, 100);
+        }
+
+        function completeConversion() {
+            appState = 'download_ready';
+            
+            // UI changes for Download Ready
+            mainBtn.classList.remove('processing-state');
+            mainBtn.classList.add('download-state');
+            btnText.textContent = "DOWNLOAD OUTPUT";
+            btnIcon.textContent = "⤓";
+            
+            statusState.textContent = 'Selesai';
+            statusState.style.color = 'var(--neon-cyan)';
+            statusDesc.textContent = 'File HDR berhasil dibuat dan siap diunduh.';
+            progressContainer.style.display = 'none';
+        }
+
+        function startDownload() {
+            appState = 'downloading';
+            
+            // UI changes for Downloading
+            btnText.textContent = "MENGUNDUH...";
+            btnIcon.textContent = "⌛";
+            showToast("Memulai Unduhan...");
+
+            // Use original file Blob to create native download trigger
+            const blobUrl = URL.createObjectURL(currentFile);
+            const downloadName = `EDYE_HDR_${Date.now()}.mp4`;
+            
+            // Create hidden link
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `EDYE_PROJECT_${outRes.value}v_${outFps.value}fps.mp4`;
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = downloadName;
             document.body.appendChild(a);
+            
+            // Trigger native download
             a.click();
-            document.body.removeChild(a);
 
-            downloadBtn.disabled = false;
-            downloadBtn.innerText = "💾 Download Hasil";
-            alert("Berhasil! Video format vertikal (9:16) Dolby Vision siap diunduh.");
-        }, 2000);
-    });
-</script>
+            // Cleanup & Reset after delay
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+                
+                showToast("Unduhan Selesai! Cek folder Downloads Anda.");
+                
+                // Reset back to ready state
+                appState = 'ready';
+                resetButtonToConvert();
+                
+                statusState.textContent = 'Ready';
+                statusState.style.color = '#00ff88';
+                statusDesc.textContent = 'Siap untuk konversi ulang jika diperlukan.';
+            }, 1500);
+        }
+
+        function resetButtonToConvert() {
+            mainBtn.classList.remove('download-state');
+            mainBtn.classList.remove('processing-state');
+            btnText.textContent = "CONVERT TO HDR";
+            btnIcon.textContent = "▶";
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+        }
+
+        // Toast Notification System
+        let toastTimeout;
+        function showToast(message) {
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
+```
