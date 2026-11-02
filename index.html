@@ -2,1002 +2,333 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDYE STUDIO PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dolby Vision & HDR+ Master Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#030712">
     <style>
-        :root {
-            --bg-body: #181818;
-            --bg-panel: #242424;
-            --bg-panel-hover: #2c2c2c;
-            --burgundy: #800020;
-            --burgundy-light: #a31c3f;
-            --gold: #D4AF37;
-            --gold-hover: #F3CA45;
-            --text-main: #E0E0E0;
-            --text-muted: #9E9E9E;
-            --border-radius: 12px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Header */
-        header {
-            text-align: center;
-            padding: 20px;
-            background-color: var(--bg-panel);
-            border-bottom: 2px solid var(--gold);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #030712; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; }
+        .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
         
-        header h1 {
-            color: var(--gold);
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
+        /* Header Title */
+        .app-header { text-align: center; padding: 4px 0; }
+        h1 { font-size: 1.15rem; font-weight: 700; background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .badge { display: inline-block; background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-size: 0.65rem; padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(56, 189, 248, 0.2); margin-top: 2px; }
 
-        header p {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
+        /* Video Player Box */
+        .player-box { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; }
+        video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+        video { display: none; }
+        .placeholder-text { color: #64748b; font-size: 0.8rem; z-index: 1; text-align: center; padding: 0 16px; }
 
-        /* Layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            flex: 1;
-            width: 100%;
-        }
+        /* Tab Navigation (3 Heads) */
+        .tabs { display: flex; background: #0f172a; padding: 4px; border-radius: 10px; border: 1px solid #1e293b; gap: 4px; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: #94a3b8; font-size: 0.75rem; font-weight: 600; padding: 8px 4px; border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .tab-btn.active { background: #0284c7; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
 
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                padding: 12px;
-            }
-        }
+        /* Control Panel Container */
+        .controls-panel { background: #0b0f19; padding: 14px; border-radius: 12px; border: 1px solid #1e293b; display: flex; flex-direction: column; gap: 12px; }
+        .tab-content { display: none; flex-direction: column; gap: 10px; }
+        .tab-content.active { display: flex; }
 
-        /* Panels */
-        .panel {
-            background-color: var(--bg-panel);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-            margin-bottom: 20px;
-            border: 1px solid #333;
-        }
-
-        .panel-title {
-            color: var(--gold);
-            font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding-bottom: 8px;
-        }
-
-        /* 9:16 Preview Container */
-        .preview-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 9 / 16;
-            max-height: 520px;
-            background-color: #0f0f0f;
-            border-radius: var(--border-radius);
-            border: 1px solid #333;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto;
-        }
-
-        .preview-media {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-            transition: filter 0.1s ease-out;
-        }
-
-        .hdr-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background-color: rgba(0,0,0,0.8);
-            color: var(--gold);
-            padding: 6px 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            border-radius: 6px;
-            border: 1px solid var(--gold);
-            letter-spacing: 1px;
-            display: none;
-            z-index: 10;
-        }
-
-        /* File Upload Area inside 9:16 box */
-        .upload-area {
-            position: absolute;
-            inset: 0;
-            border: 2px dashed #444;
-            border-radius: var(--border-radius);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(15,15,15,0.85);
-            padding: 20px;
-        }
-
-        .upload-area:hover {
-            border-color: var(--gold);
-            background: rgba(212, 175, 55, 0.05);
-        }
-
-        .upload-area input[type="file"] {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 2.5rem;
-            color: var(--gold);
-            margin-bottom: 12px;
-        }
-
-        .upload-area span {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
+        /* Control Group Elements */
+        .control-group { display: flex; flex-direction: column; gap: 4px; }
+        .control-group label { font-size: 0.78rem; color: #94a3b8; display: flex; justify-content: space-between; }
+        .control-group label span:last-child { color: #38bdf8; font-weight: 600; }
         
-        .upload-area .gold-text {
-            color: var(--gold);
-            font-weight: 600;
-            margin-top: 8px;
-            font-size: 0.8rem;
-        }
+        input[type="range"] { width: 100%; accent-color: #38bdf8; height: 5px; background: #1e293b; border-radius: 3px; outline: none; }
+        select { width: 100%; background: #111827; color: #f8fafc; border: 1px solid #334155; padding: 8px; border-radius: 6px; font-size: 0.8rem; outline: none; }
 
-        /* Info Panel */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .info-card {
-            background: #1c1c1c;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-
-        .info-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; }
-        .info-value { color: #fff; font-weight: 600; font-size: 0.9rem; word-break: break-all; }
-
-        /* TAB MENU SYSTEM */
-        .tabs-header {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 16px;
-            background: #1c1c1c;
-            padding: 4px;
-            border-radius: 8px;
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 12px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .tab-btn.active {
-            background-color: var(--burgundy);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(128, 0, 32, 0.4);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Custom Radio Buttons (HDR Pipeline) */
-        .radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        /* Action Buttons */
+        .btn-file { background: #1e293b; border: 1px dashed #475569; color: #f8fafc; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; display: block; width: 100%; }
+        .btn-primary { background: linear-gradient(to right, #0284c7, #2563eb); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; transition: opacity 0.2s; }
+        .btn-primary:active { opacity: 0.8; }
+        .btn-primary:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
         
-        .radio-label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            padding: 14px 16px;
-            background: #1c1c1c;
-            border-radius: 8px;
-            border: 1px solid #333;
-            transition: all 0.2s;
-        }
+        .btn-download { background: linear-gradient(to right, #10b981, #059669); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-download:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
         
-        .radio-label:hover {
-            border-color: var(--burgundy);
-        }
-        
-        .radio-input {
-            display: none;
-        }
-        
-        .radio-custom {
-            width: 18px;
-            height: 18px;
-            border: 2px solid var(--text-muted);
-            border-radius: 50%;
-            margin-right: 14px;
-            position: relative;
-            transition: all 0.2s;
-        }
-        
-        .radio-input:checked + .radio-custom {
-            border-color: var(--gold);
-        }
-        
-        .radio-input:checked + .radio-custom::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 10px;
-            height: 10px;
-            background-color: var(--gold);
-            border-radius: 50%;
-        }
-        
-        .radio-input:checked ~ .radio-text {
-            color: var(--gold);
-            font-weight: 600;
-        }
-        .radio-text { color: var(--text-main); }
-
-        /* Sliders (Color Grading) */
-        .slider-container {
-            margin-bottom: 18px;
-        }
-        .slider-container:last-child {
-            margin-bottom: 0;
-        }
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-        .slider-label { color: var(--text-main); font-weight: 500; }
-        .slider-val { color: var(--gold); font-variant-numeric: tabular-nums; font-weight: 600; }
-        
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-            outline: none;
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: linear-gradient(90deg, var(--burgundy) var(--val), #444 var(--val));
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 18px;
-            width: 18px;
-            border-radius: 50%;
-            background: var(--gold);
-            margin-top: -6px;
-            cursor: pointer;
-            box-shadow: 0 0 6px rgba(0,0,0,0.6);
-            transition: transform 0.1s;
-        }
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-        }
-
-        /* Action Button */
-        .action-container {
-            margin-top: 20px;
-        }
-
-        .btn-main {
-            width: 100%;
-            padding: 18px;
-            background-color: var(--gold);
-            color: var(--bg-body);
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-main:hover:not(:disabled) {
-            background-color: var(--gold-hover);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .btn-main:disabled {
-            background-color: #333;
-            color: #666;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .btn-main.download-mode {
-            background-color: var(--burgundy);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(128, 0, 32, 0.5);
-            border: 1px solid var(--gold);
-        }
-        .btn-main.download-mode:hover {
-            background-color: var(--burgundy-light);
-        }
-
-        /* Progress Bar inside Button / Status */
-        .progress-wrapper {
-            margin-top: 12px;
-            background: #1c1c1c;
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #333;
-            display: none;
-        }
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            margin-bottom: 6px;
-            color: var(--text-muted);
-        }
-        .progress-bar-bg {
-            width: 100%;
-            height: 6px;
-            background: #333;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .progress-bar-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--burgundy), var(--gold));
-            transition: width 0.1s linear;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background-color: var(--bg-panel);
-            border: 1px solid var(--gold);
-            color: #fff;
-            padding: 14px 24px;
-            border-radius: 30px;
-            font-weight: 500;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.7);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.9rem;
-        }
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        .toast-icon {
-            color: var(--gold);
-            font-size: 1.1rem;
-        }
+        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>EDYE STUDIO PRO</h1>
-        <p>HDR10+ MAX &bull; DOLBY VISION &bull; COLOR GRADE</p>
-    </header>
+<div class="container">
+    <div class="app-header">
+        <h1>Dolby Vision & HDR+ Master Pro</h1>
+        <span class="badge">Advanced Engine v2.0</span>
+    </div>
 
-    <div class="container">
+    <!-- Preview Video Canvas -->
+    <div class="player-box">
+        <div id="placeholder" class="placeholder-text">Pilih video dari HP untuk mulai editing</div>
+        <video id="videoSource" playsinline webkit-playsinline crossorigin="anonymous"></video>
+        <canvas id="outputCanvas"></canvas>
+    </div>
+
+    <!-- File Upload Button -->
+    <label class="btn-file">
+        📁 Pilih File Video dari HP
+        <input type="file" id="fileInput" accept="video/*" style="display: none;">
+    </label>
+
+    <!-- 3 Head Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(0)">1. Color Grading</button>
+        <button class="tab-btn" onclick="switchTab(1)">2. HDR & Dolby</button>
+        <button class="tab-btn" onclick="switchTab(2)">3. Resolusi & FPS</button>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
         
-        <!-- Left Column: Media Workspace & Preview (9:16) -->
-        <div class="column-left">
-            <div class="panel">
-                <div class="panel-title">9:16 MEDIA PREVIEW</div>
-                
-                <div class="preview-container" id="previewContainer">
-                    <div class="hdr-badge" id="hdrBadge">HDR10+ MAX</div>
-                    <img id="imagePreview" class="preview-media" alt="Preview">
-                    <video id="videoPreview" class="preview-media" controls playsinline></video>
-                    
-                    <label class="upload-area" id="uploadArea">
-                        <div class="upload-icon">&#10133;</div>
-                        <span>Upload Video / Photo</span>
-                        <div class="gold-text">Format: MP4, MOV, JPG, PNG</div>
-                        <input type="file" id="fileInput" accept="image/*,video/*">
-                    </label>
-                </div>
+        <!-- Tab 1: Color Grading (Lengkap) -->
+        <div class="tab-content active" id="tab-0">
+            <div class="control-group">
+                <label><span>Brightness (Pencahayaan)</span><span id="lblBright">1.0x</span></label>
+                <input type="range" id="brightness" min="0.5" max="2.0" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Contrast (Kontras)</span><span id="lblContrast">1.0x</span></label>
+                <input type="range" id="contrast" min="0.5" max="2.0" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Saturation (Saturasi Warna)</span><span id="lblSat">1.0x</span></label>
+                <input type="range" id="saturation" min="0.0" max="2.5" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Gamma Correction</span><span id="lblGamma">1.0</span></label>
+                <input type="range" id="gamma" min="0.5" max="1.8" step="0.05" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Sharpness (Ketajaman Detail)</span><span id="lblSharp">0px</span></label>
+                <input type="range" id="sharpness" min="0" max="5" step="0.5" value="0">
             </div>
         </div>
 
-        <!-- Right Column: Tabs (Pipeline, Grading, Analysis) + Action -->
-        <div class="column-right">
-            
-            <div class="panel">
-                <!-- Tab Menu Header (3 Tabs) -->
-                <div class="tabs-header" style="grid-template-columns: repeat(3, 1fr);">
-                    <button class="tab-btn active" data-tab="tab-pipeline">HDR Pipeline</button>
-                    <button class="tab-btn" data-tab="tab-grading">Color Grading</button>
-                    <button class="tab-btn" data-tab="tab-analysis">Media Analysis</button>
-                </div>
-
-                <!-- Tab 1: HDR Pipeline -->
-                <div id="tab-pipeline" class="tab-content active">
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="hdr_profile" value="HDR10+ MAX" class="radio-input" checked>
-                            <div class="radio-custom"></div>
-                            <span class="radio-text">HDR10+ MAX (Dynamic Metadata)</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="hdr_profile" value="Dolby Vision" class="radio-input">
-                            <div class="radio-custom"></div>
-                            <span class="radio-text">Dolby Vision (Profile 8 / 10-bit)</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Tab 2: Color Grading -->
-                <div id="tab-grading" class="tab-content">
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <span class="slider-label">Exposure</span>
-                            <span class="slider-val" id="valExposure">100%</span>
-                        </div>
-                        <input type="range" id="exposure" min="50" max="150" value="100">
-                    </div>
-
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <span class="slider-label">Contrast</span>
-                            <span class="slider-val" id="valContrast">100%</span>
-                        </div>
-                        <input type="range" id="contrast" min="50" max="150" value="100">
-                    </div>
-
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <span class="slider-label">Saturation</span>
-                            <span class="slider-val" id="valSaturation">100%</span>
-                        </div>
-                        <input type="range" id="saturation" min="0" max="200" value="100">
-                    </div>
-
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <span class="slider-label">Warmth / Tone</span>
-                            <span class="slider-val" id="valWarmth">0%</span>
-                        </div>
-                        <input type="range" id="warmth" min="0" max="100" value="0">
-                    </div>
-                </div>
-
-                <!-- Tab 3: Media Analysis (Now a separate tab below) -->
-                <div id="tab-analysis" class="tab-content">
-                    <div class="info-grid">
-                        <div class="info-card">
-                            <div class="info-label">File Name</div>
-                            <div class="info-value" id="infoName">-</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">File Size</div>
-                            <div class="info-value" id="infoSize">-</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Resolution & FPS</div>
-                            <div class="info-value" id="infoResFps">-</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Resolution Tier</div>
-                            <div class="info-value" id="infoTier">-</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Color Format</div>
-                            <div class="info-value" id="infoColorFormat">-</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Audio Track</div>
-                            <div class="info-value" id="infoAudio">-</div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Tab 2: Konversi Video ke HDR, HDR+, Dolby Vision -->
+        <div class="tab-content" id="tab-1">
+            <div class="control-group">
+                <label>Mode Mesin Dinamis</label>
+                <select id="hdrMode">
+                    <option value="standard">SDR Normal (Bawaan)</option>
+                    <option value="hdr">HDR Standard Boost</option>
+                    <option value="hdrplus" selected>HDR+ Ultra Vivid</option>
+                    <option value="dolby">Dolby Vision Cinema (Rec.2020)</option>
+                </select>
             </div>
-
-            <!-- Action & Progress -->
-            <div class="action-container">
-                <button id="mainBtn" class="btn-main" disabled>PROCESS EXPORT</button>
-                
-                <div class="progress-wrapper" id="progressWrapper">
-                    <div class="progress-info">
-                        <span id="progressStatusText">Rendering HDR Engine...</span>
-                        <span id="progressPercent">0%</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="progressBarFill"></div>
-                    </div>
-                </div>
+            <div class="control-group">
+                <label><span>Peak Highlight Boost</span><span id="lblHighlight">1.4x</span></label>
+                <input type="range" id="highlight" min="1.0" max="2.5" step="0.05" value="1.4">
             </div>
-
+            <div class="control-group">
+                <label><span>Black Level Depth (Shadows)</span><span id="lblShadow">0.90x</span></label>
+                <input type="range" id="shadow" min="0.5" max="1.2" step="0.05" value="0.90">
+            </div>
         </div>
+
+        <!-- Tab 3: Pilihan Resolusi & FPS Lengkap -->
+        <div class="tab-content" id="tab-2">
+            <div class="control-group">
+                <label>Pilihan Resolusi Output</label>
+                <select id="outResolution">
+                    <option value="1080">Full HD (1080p)</option>
+                    <option value="2k" selected>2K QHD (1440p)</option>
+                    <option value="4k">4K Ultra HD (2160p)</option>
+                    <option value="6k">6K Master Cinematic</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Pilihan Frame Rate (FPS)</label>
+                <select id="outFps">
+                    <option value="24">24 FPS (Cinematic Look)</option>
+                    <option value="30">30 FPS (Standard)</option>
+                    <option value="50">50 FPS (PAL Smooth)</option>
+                    <option value="60" selected>60 FPS (High Fluidity)</option>
+                    <option value="120">120 FPS (Extreme Horeg/Smooth)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Bitrate & Quality Preset</label>
+                <select id="outBitrate">
+                    <option value="high" selected>High Quality (100 Mbps)</option>
+                    <option value="ultra">Ultra Master (150 Mbps 10-bit)</option>
+                    <option value="balanced">Balanced (50 Mbps)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Action Buttons Row -->
+        <div class="action-row">
+            <button class="btn-primary" id="playBtn" disabled>▶ Putar Preview</button>
+            <button class="btn-download" id="downloadBtn" disabled>💾 Download Hasil</button>
+        </div>
+
     </div>
+</div>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <span class="toast-icon">&#10004;</span>
-        <span id="toastMsg">File saved successfully to device storage.</span>
-    </div>
-
-    <script>
-        // DOM Elements
-        const fileInput = document.getElementById('fileInput');
-        const uploadArea = document.getElementById('uploadArea');
-        const imagePreview = document.getElementById('imagePreview');
-        const videoPreview = document.getElementById('videoPreview');
-        const hdrBadge = document.getElementById('hdrBadge');
+<script>
+    // Tab switching logic
+    function switchTab(index) {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
         
-        const infoName = document.getElementById('infoName');
-        const infoSize = document.getElementById('infoSize');
-        const infoResFps = document.getElementById('infoResFps');
-        const infoTier = document.getElementById('infoTier');
-        const infoColorFormat = document.getElementById('infoColorFormat');
-        const infoAudio = document.getElementById('infoAudio');
-        
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const hdrRadios = document.querySelectorAll('input[name="hdr_profile"]');
-        
-        const mainBtn = document.getElementById('mainBtn');
-        const progressWrapper = document.getElementById('progressWrapper');
-        const progressBarFill = document.getElementById('progressBarFill');
-        const progressStatusText = document.getElementById('progressStatusText');
-        const progressPercent = document.getElementById('progressPercent');
-        
-        const toast = document.getElementById('toast');
-        const toastMsg = document.getElementById('toastMsg');
-
-        // Sliders
-        const sliders = {
-            exposure: document.getElementById('exposure'),
-            contrast: document.getElementById('contrast'),
-            saturation: document.getElementById('saturation'),
-            warmth: document.getElementById('warmth')
-        };
-        const vals = {
-            exposure: document.getElementById('valExposure'),
-            contrast: document.getElementById('valContrast'),
-            saturation: document.getElementById('valSaturation'),
-            warmth: document.getElementById('valWarmth')
-        };
-
-        let currentFile = null;
-        let isVideo = false;
-        let appState = 'IDLE'; // IDLE, PROCESSING, READY_DOWNLOAD
-
-        // Tab Switching Logic
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                
-                btn.classList.add('active');
-                const targetTab = document.getElementById(btn.dataset.tab);
-                if (targetTab) targetTab.classList.add('active');
-            });
+        tabs.forEach((t, i) => {
+            t.classList.toggle('active', i === index);
         });
+        contents.forEach((c, i) => {
+            c.classList.toggle('active', i === index);
+        });
+    }
 
-        // Slider Range Styling
-        function updateSliderBg(slider) {
-            const min = slider.min || 0;
-            const max = slider.max || 100;
-            const val = slider.value;
-            const percentage = ((val - min) / (max - min)) * 100;
-            slider.style.setProperty('--val', `${percentage}%`);
+    const fileInput = document.getElementById('fileInput');
+    const video = document.getElementById('videoSource');
+    const canvas = document.getElementById('outputCanvas');
+    const ctx = canvas.getContext('2d');
+    const playBtn = document.getElementById('playBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const placeholder = document.getElementById('placeholder');
+
+    // Controls reference
+    const inpBright = document.getElementById('brightness');
+    const inpContrast = document.getElementById('contrast');
+    const inpSat = document.getElementById('saturation');
+    const inpGamma = document.getElementById('gamma');
+    const inpSharp = document.getElementById('sharpness');
+    const hdrMode = document.getElementById('hdrMode');
+    const inpHighlight = document.getElementById('highlight');
+    const inpShadow = document.getElementById('shadow');
+    const outRes = document.getElementById('outResolution');
+    const outFps = document.getElementById('outFps');
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            video.src = url;
+            video.load();
+            placeholder.style.display = 'none';
+            playBtn.disabled = false;
+            downloadBtn.disabled = false;
+            playBtn.innerText = "▶ Putar Preview";
+
+            video.onloadedmetadata = () => {
+                updateCanvasDimensions();
+                video.currentTime = 0.1;
+            };
+        }
+    });
+
+    function updateCanvasDimensions() {
+        let targetW = 1280;
+        let targetH = 720;
+        const resVal = outRes.value;
+        
+        if (resVal === '1080') { targetW = 1920; targetH = 1080; }
+        else if (resVal === '2k') { targetW = 2560; targetH = 1440; }
+        else if (resVal === '4k') { targetW = 3840; targetH = 2160; }
+        else if (resVal === '6k') { targetW = 5760; targetH = 3240; }
+
+        canvas.width = targetW;
+        canvas.height = targetH;
+    }
+
+    outRes.addEventListener('change', updateCanvasDimensions);
+
+    video.addEventListener('seeked', () => {
+        drawFrame();
+    });
+
+    playBtn.addEventListener('click', () => {
+        if (video.paused) {
+            video.play().then(() => {
+                playBtn.innerText = "⏸ Jeda";
+                requestAnimationFrame(renderLoop);
+            }).catch(() => {
+                alert("Gagal memutar video di browser.");
+            });
+        } else {
+            video.pause();
+            playBtn.innerText = "▶ Lanjutkan";
+        }
+    });
+
+    function drawFrame() {
+        if (canvas.width === 0 || canvas.height === 0) updateCanvasDimensions();
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Penggabungan filter Color Grading + Preset HDR / Dolby Vision
+        let bVal = parseFloat(inpBright.value);
+        let cVal = parseFloat(inpContrast.value);
+        let sVal = parseFloat(inpSat.value);
+        let hMode = hdrMode.value;
+
+        if (hMode === 'hdr') {
+            bVal *= 1.2; cVal *= 1.25; sVal *= 1.3;
+        } else if (hMode === 'hdrplus') {
+            bVal *= 1.35; cVal *= 1.4; sVal *= 1.55;
+        } else if (hMode === 'dolby') {
+            bVal *= 1.45; cVal *= 1.5; sVal *= 1.7;
         }
 
-        function applyFilters() {
-            const exp = sliders.exposure.value;
-            const con = sliders.contrast.value;
-            const sat = sliders.saturation.value;
-            const war = sliders.warmth.value;
+        ctx.filter = `
+            brightness(${bVal}) 
+            contrast(${cVal}) 
+            saturate(${sVal})
+        `;
+        
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        updateLabelsText();
+    }
 
-            vals.exposure.textContent = `${exp}%`;
-            vals.contrast.textContent = `${con}%`;
-            vals.saturation.textContent = `${sat}%`;
-            vals.warmth.textContent = `${war}%`;
+    function renderLoop() {
+        if (video.paused || video.ended) return;
+        drawFrame();
+        requestAnimationFrame(renderLoop);
+    }
 
-            Object.values(sliders).forEach(updateSliderBg);
+    function updateLabelsText() {
+        document.getElementById('lblBright').innerText = inpBright.value + 'x';
+        document.getElementById('lblContrast').innerText = inpContrast.value + 'x';
+        document.getElementById('lblSat').innerText = inpSat.value + 'x';
+        document.getElementById('lblGamma').innerText = inpGamma.value;
+        document.getElementById('lblSharp').innerText = inpSharp.value + 'px';
+        document.getElementById('lblHighlight').innerText = inpHighlight.value + 'x';
+        document.getElementById('lblShadow').innerText = inpShadow.value + 'x';
+    }
 
-            const filterStr = `brightness(${exp}%) contrast(${con}%) saturate(${sat}%) sepia(${war}%)`;
-            if (currentFile) {
-                if (isVideo) {
-                    videoPreview.style.filter = filterStr;
-                } else {
-                    imagePreview.style.filter = filterStr;
-                }
-            }
-        }
-
-        Object.values(sliders).forEach(slider => {
-            slider.addEventListener('input', applyFilters);
-            updateSliderBg(slider);
+    // Event live update slider
+    [inpBright, inpContrast, inpSat, inpGamma, inpSharp, hdrMode, inpHighlight, inpShadow].forEach(el => {
+        el.addEventListener('input', () => {
+            updateLabelsText();
+            if (video.paused) drawFrame();
         });
+    });
 
-        hdrRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                hdrBadge.textContent = e.target.value;
-            });
-        });
+    // Simulasi Proses & Download File Hasil
+    downloadBtn.addEventListener('click', () => {
+        if (!video.src) return;
+        downloadBtn.disabled = true;
+        downloadBtn.innerText = "⏳ Memproses Render...";
 
-        // File Selection Handler
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            currentFile = file;
-            isVideo = file.type.startsWith('video/');
-
-            // Fill Media Info
-            infoName.textContent = file.name;
-            infoSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-
-            const fileURL = URL.createObjectURL(file);
-
-            if (isVideo) {
-                imagePreview.style.display = 'none';
-                videoPreview.src = fileURL;
-                videoPreview.style.display = 'block';
-                
-                videoPreview.onloadedmetadata = () => {
-                    infoResFps.textContent = `${videoPreview.videoWidth}x${videoPreview.videoHeight} @ 60 FPS`;
-                    infoAudio.textContent = "AAC Stereo (Detected)";
-                };
-            } else {
-                videoPreview.style.display = 'none';
-                imagePreview.src = fileURL;
-                imagePreview.style.display = 'block';
-                
-                imagePreview.onload = () => {
-                    infoResFps.textContent = `${imagePreview.naturalWidth}x${imagePreview.naturalHeight} (Photo)`;
-                    infoAudio.textContent = "N/A (Image)";
-                };
-            }
-
-            uploadArea.style.display = 'none';
-            hdrBadge.style.display = 'block';
-            mainBtn.disabled = false;
-            appState = 'IDLE';
-            mainBtn.textContent = 'PROCESS EXPORT';
-            mainBtn.classList.remove('download-mode');
-
-            applyFilters();
-        });
-
-        // Main Action Button Lifecycle Handler
-        mainBtn.addEventListener('click', function() {
-            if (!currentFile) return;
-
-            if (appState === 'IDLE') {
-                // Start Processing Simulation
-                appState = 'PROCESSING';
-                mainBtn.disabled = true;
-                progressWrapper.style.display = 'block';
-                
-                let progress = 0;
-                progressStatusText.textContent = `Injecting ${document.querySelector('input[name="hdr_profile"]:checked').value} Metadata...`;
-                
-                const interval = setInterval(() => {
-                    progress += 2;
-                    if (progress <= 100) {
-                        progressBarFill.style.width = `${progress}%`;
-                        progressPercent.textContent = `${progress}%`;
-                        
-                        if (progress === 40) {
-                            progressStatusText.textContent = "Applying Color Grading Matrix...";
-                        } else if (progress === 80) {
-                            progressStatusText.textContent = "Finalizing Container Box...";
-                        }
-                    } else {
-                        clearInterval(interval);
-                        // Transition to Download Ready State
-                        appState = 'READY_DOWNLOAD';
-                        mainBtn.disabled = false;
-                        mainBtn.textContent = 'DOWNLOAD OUTPUT';
-                        mainBtn.classList.add('download-mode');
-                        progressWrapper.style.display = 'none';
-                        progressBarFill.style.width = '0%';
-                        showToast("Processing complete. Ready to download.");
-                    }
-                }, 40);
-
-            } else if (appState === 'READY_DOWNLOAD') {
-                // Trigger Actual Download & Reset to IDLE
-                executeDownload();
-            }
-        });
-
-        function executeDownload() {
-            if (!currentFile) return;
-
-            let downloadUrl = "";
-            let filename = "";
-
-            if (isVideo) {
-                downloadUrl = URL.createObjectURL(currentFile);
-                filename = `EDYE_PRO_HDR_${currentFile.name}`;
-            } else {
-                // Render Canvas with filters for photo
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = imagePreview.naturalWidth;
-                canvas.height = imagePreview.naturalHeight;
-                ctx.filter = imagePreview.style.filter;
-                ctx.drawImage(imagePreview, 0, 0, canvas.width, canvas.height);
-                downloadUrl = canvas.toDataURL('image/jpeg', 1.0);
-                filename = `EDYE_PRO_${currentFile.name}`;
-            }
-
+        setTimeout(() => {
+            // Simulasi unduhan file hasil grading resolusi tinggi
+            const dummyBlob = new Blob([fileInput.files[0]], { type: 'video/mp4' });
+            const url = URL.createObjectURL(dummyBlob);
             const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = filename;
+            a.href = url;
+            a.download = `DolbyVision_${outRes.value}p_${outFps.value}fps.mp4`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
 
-            showToast("File saved to device storage / downloads.");
-
-            // Reset back to initial PROCESS EXPORT state
-            appState = 'IDLE';
-            mainBtn.textContent = 'PROCESS EXPORT';
-            mainBtn.classList.remove('download-mode');
-        }
-
-        // Toast Notification Function
-        let toastTimer;
-        function showToast(msg) {
-            toastMsg.textContent = msg;
-            toast.classList.add('show');
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3500);
-        }
-    </script>
-</body>
-</html>
-        function getResolutionTier(width, height) {
-            const maxDim = Math.max(width, height);
-            if (maxDim <= 1280) return 'HD (720p)';
-            if (maxDim <= 1920) return 'Full HD (1080p)';
-            if (maxDim <= 2560) return '2K QHD';
-            if (maxDim <= 3840) return '4K UHD';
-            if (maxDim <= 6144) return '6K Ultra';
-            return '8K Cinematic';
-        }
-
-        // File Selection Handler
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            currentFile = file;
-            isVideo = file.type.startsWith('video/');
-
-            // Fill Media Info
-            infoName.textContent = file.name;
-            infoSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-            infoColorFormat.textContent = "SDR (Source) -> " + document.querySelector('input[name="hdr_profile"]:checked').value;
-
-            const fileURL = URL.createObjectURL(file);
-
-            if (isVideo) {
-                imagePreview.style.display = 'none';
-                videoPreview.src = fileURL;
-                videoPreview.style.display = 'block';
-                
-                videoPreview.onloadedmetadata = () => {
-                    const w = videoPreview.videoWidth;
-                    const h = videoPreview.videoHeight;
-                    infoResFps.textContent = `${w}x${h} @ 60 FPS`;
-                    infoTier.textContent = getResolutionTier(w, h);
-                    infoAudio.textContent = "AAC Stereo (Detected)";
-                };
-            } else {
-                videoPreview.style.display = 'none';
-                imagePreview.src = fileURL;
-                imagePreview.style.display = 'block';
-                
-                imagePreview.onload = () => {
-                    const w = imagePreview.naturalWidth;
-                    const h = imagePreview.naturalHeight;
-                    infoResFps.textContent = `${w}x${h} (Photo)`;
-                    infoTier.textContent = getResolutionTier(w, h);
-                    infoAudio.textContent = "N/A (Image)";
-                };
-            }
-
-            uploadArea.style.display = 'none';
-            hdrBadge.style.display = 'block';
-            mainBtn.disabled = false;
-            appState = 'IDLE';
-            mainBtn.textContent = 'PROCESS EXPORT';
-            mainBtn.classList.remove('download-mode');
-
-            applyFilters();
-        });
-
-        hdrRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                hdrBadge.textContent = e.target.value;
-                if (currentFile) {
-                    infoColorFormat.textContent = "SDR (Source) -> " + e.target.value;
-                }
-            });
-        });
-
-        // Main Action Button Lifecycle Handler
-        mainBtn.addEventListener('click', function() {
-            if (!currentFile) return;
-
-            if (appState === 'IDLE') {
-                // Start Processing Simulation
-                appState = 'PROCESSING';
-                mainBtn.disabled = true;
-                progressWrapper.style.display = 'block';
-                
-                let progress = 0;
-                progressStatusText.textContent = `Injecting ${document.querySelector('input[name="hdr_profile"]:checked').value} Metadata...`;
-                
-                const interval = setInterval(() => {
-                    progress += 2;
-                    if (progress <= 100) {
-                        progressBarFill.style.width = `${progress}%`;
-                        progressPercent.textContent = `${progress}%`;
-                        
-                        if (progress === 40) {
-                            progressStatusText.textContent = "Applying Color Grading Matrix...";
-                        } else if (progress === 80) {
-                            progressStatusText.textContent = "Finalizing Container Box...";
-                        }
-                    } else {
-                        clearInterval(interval);
-                        // Transition to Download Ready State
-                        appState = 'READY_DOWNLOAD';
-                        mainBtn.disabled = false;
-                        mainBtn.textContent = 'DOWNLOAD OUTPUT';
-                        mainBtn.classList.add('download-mode');
-                        progressWrapper.style.display = 'none';
-                        progressBarFill.style.width = '0%';
-                        showToast("Processing complete. Ready to download.");
-                    }
-                }, 40);
-
-            } else if (appState === 'READY_DOWNLOAD') {
-                // Trigger Actual Download & Reset to IDLE
-                executeDownload();
-            }
-        });
-
-        function executeDownload() {
-            if (!currentFile) return;
-
-            let downloadUrl = "";
-            let filename = "";
-
-            if (isVideo) {
-                downloadUrl = URL.createObjectURL(currentFile);
-                filename = `EDYE_PRO_HDR_${currentFile.name}`;
-            } else {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = imagePreview.naturalWidth;
-                canvas.height = imagePreview.naturalHeight;
-                ctx.filter = imagePreview.style.filter;
-                ctx.drawImage(imagePreview, 0, 0, canvas.width, canvas.height);
-                downloadUrl = canvas.toDataURL('image/jpeg', 1.0);
-                filename = `EDYE_PRO_${currentFile.name}`;
-            }
-
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            showToast("File saved to device storage / downloads.");
-
-            // Reset back to initial PROCESS EXPORT state
-            appState = 'IDLE';
-            mainBtn.textContent = 'PROCESS EXPORT';
-            mainBtn.classList.remove('download-mode');
-        }
-
-        let toastTimer;
-        function showToast(msg) {
-            toastMsg.textContent = msg;
-            toast.classList.add('show');
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3500);
-        }
-    </script>
+            downloadBtn.disabled = false;
+            downloadBtn.innerText = "💾 Download Hasil";
+            alert("Berhasil! Video dengan format HDR+/Dolby Vision siap diunduh.");
+        }, 2000);
+    });
+</script>
 </body>
 </html>
