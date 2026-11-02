@@ -1,0 +1,15 @@
+{
+  "name": "HDR Dolby Video App",
+  "short_name": "HDRPlayer",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#07090e",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3334/3334886.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
